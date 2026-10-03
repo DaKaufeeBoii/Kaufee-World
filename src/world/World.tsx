@@ -1,12 +1,16 @@
 // ─── WORLD — ROOT SCENE ───────────────────────────────────────────────────────
 // Assembles all districts, lighting, player, and NPCs.
 
-import { Suspense, useEffect } from 'react';
+import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
+import { Physics } from '@react-three/rapier';
+import * as THREE from 'three';
 import { useWorldStore } from '../state/stores';
 import { PALETTE, WORLD, DISTRICTS } from '../lib/constants';
 import { WorldEnvironment } from './WorldEnvironment';
 import { WorldLighting } from './WorldLighting';
+import { WorldBounds } from './WorldBounds';
 import { CentralPlaza } from './districts/CentralPlaza';
 import { AILab } from './districts/AILab';
 import { ProjectCity } from './districts/ProjectCity';
@@ -15,13 +19,18 @@ import { Archive } from './districts/Archive';
 import { DroneController } from './player/Drone';
 import { BuilderNPC } from './characters/BuilderNPC';
 
-// ─── District watcher — detect which district drone is in ────────────────────
+// ─── World Scene (inside Canvas) ─────────────────────────────────────────────
+// Lightweight throttled district detection — runs every 15 frames to save CPU.
 
+let frameCount = 0;
 function DistrictWatcher() {
   const dronePos = useWorldStore((s) => s.dronePosition);
   const setActiveDistrict = useWorldStore((s) => s.setActiveDistrict);
 
-  useEffect(() => {
+  useFrame(() => {
+    frameCount++;
+    if (frameCount % 15 !== 0) return;
+
     let nearest = 'plaza' as keyof typeof DISTRICTS;
     let minDist = Infinity;
     for (const [id, d] of Object.entries(DISTRICTS)) {
@@ -34,7 +43,7 @@ function DistrictWatcher() {
       }
     }
     setActiveDistrict(nearest);
-  }, [dronePos, setActiveDistrict]);
+  });
 
   return null;
 }
@@ -50,21 +59,24 @@ function WorldScene() {
       {/* Lighting */}
       <WorldLighting />
 
-      {/* Ground + Terrain */}
-      <WorldEnvironment />
+      <Physics gravity={[0, -9.81, 0]}>
+        {/* Solid, dedicated physical collision system */}
+        <WorldBounds />
 
-      {/* Districts */}
-      <CentralPlaza />
-      <AILab />
-      <ProjectCity />
-      <Arcade />
-      <Archive />
+        {/* Visual districts and geometry */}
+        <WorldEnvironment />
+        <CentralPlaza />
+        <AILab />
+        <ProjectCity />
+        <Arcade />
+        <Archive />
 
-      {/* Characters */}
-      <BuilderNPC position={[-1.5, 0, -3.5]} />
+        {/* Characters */}
+        <BuilderNPC position={[-1.5, 0, -3.5]} />
 
-      {/* Player */}
-      <DroneController />
+        {/* Player Drone with physics */}
+        <DroneController />
+      </Physics>
 
       {/* District detection */}
       <DistrictWatcher />
@@ -80,18 +92,20 @@ export function World() {
       camera={{
         fov: 65,
         near: 0.1,
-        far: 120,
+        far: 140,
         position: [0, 10, 12],
       }}
       gl={{
         antialias: true,
         alpha: false,
         powerPreference: 'high-performance',
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.25,
       }}
-      shadows={false}
+      shadows={true}
       style={{ background: PALETTE.skyNight }}
       onCreated={({ gl }) => {
-        gl.shadowMap.enabled = false;
+        gl.shadowMap.enabled = true;
       }}
     >
       <Suspense fallback={null}>

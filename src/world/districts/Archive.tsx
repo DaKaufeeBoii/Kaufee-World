@@ -3,7 +3,7 @@
 
 import * as THREE from 'three';
 import {
-  WallPanel, WallShrub,
+  WallPanel, WallShrub, TerminalScreen,
 } from '../EnvironmentKit';
 import { PALETTE, WORLD } from '../../lib/constants';
 import { TIMELINE } from '../../data';
@@ -137,6 +137,23 @@ function OldTerminal({ position }: { position: [number, number, number] }) {
   );
 }
 
+// ─── Diagnostic Terminal (Easter Egg / Info) ───────────────────
+function DiagnosticTerminal({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      <TerminalScreen 
+        position={[0, 0, 0]} 
+        color={PALETTE.archiveAccent}
+      />
+      {/* Sign label */}
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[1.0, 0.15, 0.02]} />
+        <meshStandardMaterial color={PALETTE.archiveAccent} emissive={PALETTE.archiveAccent} emissiveIntensity={0.5} />
+      </mesh>
+    </group>
+  );
+}
+
 // ─── Archive District ─────────────────────────────────────────────────────────
 
 export function Archive() {
@@ -151,13 +168,14 @@ export function Archive() {
       {/* Ceiling panels (gives enclosed vault feel) */}
       <WallPanel position={[0, Y + 3.65, 26]} w={22} h={0.12} d={12} color="#1A1A1E" />
 
-      {/* ── TIMELINE WALL ───────────────────────────────────────────── */}
-      {/* Long wall to the right of vault */}
-      <WallPanel position={[10.8, Y + 1.8, 26]} w={0.35} h={3.6} d={14} color="#1E1E22" />
-      {/* Mount each timeline event on the wall */}
+      {/* ── TIMELINE ARTIFACTS ─────────────────────────────────────────────────── */}
       {TIMELINE.map((event) => (
-        <TimelineArtifact key={event.id} event={event} wallX={10.6} />
+        <TimelineArtifact key={event.id} event={event} wallX={-8} />
       ))}
+      {/* ── DIAGNOSTIC TERMINAL (Easter Egg / Info) ─────────────────────────────── */}
+      <group position={[6, Y + 0.9, 14]} rotation={[0, Math.PI, 0]}>
+        <DiagnosticTerminal position={[0, 0, 0]} />
+      </group>
       {/* Year stripe markers on ground level */}
       {[2023, 2024, 2025, 2026].map((year, i) => (
         <mesh key={year} position={[0, Y + 0.02, 14 + i * 4.5]}>
@@ -203,6 +221,7 @@ export function Archive() {
       {/* ── OLD MACHINES section ────────────────────────────────────── */}
       <OldTerminal position={[-7, Y + 0.56, 18]} />
       <OldTerminal position={[-7, Y + 0.56, 20]} />
+      <DiagnosticTerminal position={[-7, Y + 0.56, 22]} />
       {/* Stacked old build boxes */}
       {[0, 1, 2].map((i) => (
         <mesh key={i} position={[-9, Y + 0.2 + i * 0.35, 20]} castShadow>

@@ -5,7 +5,8 @@
 import { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { DRONE, CAMERA, PALETTE } from '../../lib/constants';
+import { RigidBody, RapierRigidBody, BallCollider } from '@react-three/rapier';
+import { DRONE, CAMERA, PALETTE, DISTRICTS } from '../../lib/constants';
 import { useWorldStore } from '../../state/stores';
 import { useKeyboard } from '../../hooks/useInput';
 
@@ -121,6 +122,24 @@ export function DroneModel({ groupRef }: { groupRef: React.RefObject<THREE.Group
           />
         </mesh>
       ))}
+
+      {/* ── Drone Forward Headlight & Ground Illumination ───────────── */}
+      <spotLight
+        position={[0, 0.05, 0.25]}
+        target-position={[0, -0.6, 3.0]}
+        color="#E0F2FE"
+        intensity={16}
+        distance={14}
+        angle={Math.PI / 4.2}
+        penumbra={0.7}
+      />
+      <pointLight
+        position={[0, -0.08, 0]}
+        color={PALETTE.screenBlue}
+        intensity={6}
+        distance={5}
+        decay={1.8}
+      />
     </group>
   );
 }
@@ -129,15 +148,19 @@ export function DroneModel({ groupRef }: { groupRef: React.RefObject<THREE.Group
 
 export function DroneController() {
   const keys = useKeyboard();
-  const droneRef = useRef<THREE.Group>(null!);
-  const visualRef = useRef<THREE.Group>(null!);
+  const rigidBodyRef = useRef<RapierRigidBody>(null!);
+  const visualFacingRef = useRef<THREE.Group>(null!);
+  const visualTiltRef = useRef<THREE.Group>(null!);
+  const modelRef = useRef<THREE.Group>(null!);
   const { camera } = useThree();
   const setDronePosition = useWorldStore((s) => s.setDronePosition);
   const cameraMode = useWorldStore((s) => s.cameraMode);
+  const activeDistrict = useWorldStore((s) => s.activeDistrict);
 
   // Velocity for smooth movement
   const vel = useRef(new THREE.Vector3());
   const cameraAngleRef = useRef(0); // horizontal camera rotation
+  const groundYRef = useRef(0);
 
   // Mouse look
   useEffect(() => {
@@ -160,8 +183,12 @@ export function DroneController() {
     return () => document.removeEventListener('mousemove', onMouseMove);
   }, [cameraMode]);
 
-  useFrame((_, delta) => {
-    if (!droneRef.current || cameraMode !== 'explore') return;
+  useFrame(() => {
+    const rb = rigidBodyRef.current;
+    if (!rb) return;
+
+    // Wake up if asleep
+    if (rb.isSleeping()) rb.wakeUp();
 
     const k = keys.current;
     const boost = k.boost ? DRONE.boostMultiplier : 1;
@@ -173,59 +200,85 @@ export function DroneController() {
     const right = new THREE.Vector3(Math.cos(camAngle), 0, -Math.sin(camAngle));
 
     const inputDir = new THREE.Vector3();
-    if (k.forward) inputDir.addScaledVector(fwd, 1);
-    if (k.backward) inputDir.addScaledVector(fwd, -1);
-    if (k.left) inputDir.addScaledVector(right, -1);
-    if (k.right) inputDir.addScaledVector(right, 1);
+    if (cameraMode === 'explore') {
+      if (k.forward) inputDir.addScaledVector(fwd, 1);
+      if (k.backward) inputDir.addScaledVector(fwd, -1);
+      if (k.left) inputDir.addScaledVector(right, -1);
+      if (k.right) inputDir.addScaledVector(right, 1);
+    }
     if (inputDir.length() > 0) inputDir.normalize();
 
     // Smooth velocity
-    vel.current.lerp(inputDir.multiplyScalar(spd), 0.12);
-    droneRef.current.position.addScaledVector(vel.current, delta);
+    const targetVel = new THREE.Vector3().copy(inputDir).multiplyScalar(spd);
+    vel.current.lerp(targetVel, 0.16);
 
-    // Hover oscillation
+    // Hover oscillation + terrain elevation adaptation
     const t = performance.now() / 1000;
-    droneRef.current.position.y = DRONE.height + Math.sin(t * DRONE.hoverFrequency) * DRONE.hoverAmplitude;
+    const targetGroundY = DISTRICTS[activeDistrict]?.elevation ?? 0;
+    groundYRef.current = THREE.MathUtils.lerp(groundYRef.current, targetGroundY, 0.08);
+    const targetY = groundYRef.current + DRONE.height + Math.sin(t * DRONE.hoverFrequency) * DRONE.hoverAmplitude;
+    
+    const currentPos = rb.translation();
+    const vy = Math.max(-5, Math.min(5, (targetY - currentPos.y) * 4)); // clamped vertical velocity
+
+    // Apply linear velocity with continuous collision detection enabled
+    rb.setLinvel({ x: vel.current.x, y: vy, z: vel.current.z }, true);
 
     // Drone facing (toward movement)
     if (vel.current.length() > 0.2) {
       const targetAngle = Math.atan2(vel.current.x, vel.current.z);
-      droneRef.current.rotation.y = THREE.MathUtils.lerp(
-        droneRef.current.rotation.y, targetAngle, 0.12
+      visualFacingRef.current.rotation.y = THREE.MathUtils.lerp(
+        visualFacingRef.current.rotation.y, targetAngle, 0.14
       );
     }
 
     // Drone tilt (pitch/roll based on movement)
-    if (visualRef.current) {
+    if (visualTiltRef.current) {
       const movingFwd = vel.current.dot(fwd);
       const movingRight = vel.current.dot(right);
-      visualRef.current.rotation.x = THREE.MathUtils.lerp(
-        visualRef.current.rotation.x, -movingFwd * DRONE.tiltAmount / spd, 0.1
+      visualTiltRef.current.rotation.x = THREE.MathUtils.lerp(
+        visualTiltRef.current.rotation.x, -movingFwd * DRONE.tiltAmount / spd, 0.12
       );
-      visualRef.current.rotation.z = THREE.MathUtils.lerp(
-        visualRef.current.rotation.z, -movingRight * DRONE.rollAmount / spd, 0.1
+      visualTiltRef.current.rotation.z = THREE.MathUtils.lerp(
+        visualTiltRef.current.rotation.z, -movingRight * DRONE.rollAmount / spd, 0.12
       );
     }
 
     // Update global position store
-    const p = droneRef.current.position;
-    setDronePosition([p.x, p.y, p.z]);
+    setDronePosition([currentPos.x, currentPos.y, currentPos.z]);
 
     // ── Camera follow ────────────────────────────────────────────────
-    const targetCamPos = new THREE.Vector3(
-      p.x + Math.sin(camAngle) * CAMERA.followDistance,
-      p.y + CAMERA.followHeight,
-      p.z + Math.cos(camAngle) * CAMERA.followDistance
-    );
-    camera.position.lerp(targetCamPos, CAMERA.followLag);
-    camera.lookAt(p.x, p.y + 0.5, p.z);
+    if (cameraMode === 'explore') {
+      const targetCamPos = new THREE.Vector3(
+        currentPos.x + Math.sin(camAngle) * CAMERA.followDistance,
+        currentPos.y + CAMERA.followHeight,
+        currentPos.z + Math.cos(camAngle) * CAMERA.followDistance
+      );
+      camera.position.lerp(targetCamPos, CAMERA.followLag);
+      camera.lookAt(currentPos.x, currentPos.y + 0.5, currentPos.z);
+    }
   });
 
   return (
-    <group ref={droneRef} position={[0, DRONE.height, 0]}>
-      <group ref={visualRef}>
-        <DroneModel groupRef={useRef<THREE.Group>(null!)} />
+    <RigidBody
+      ref={rigidBodyRef}
+      type="dynamic"
+      colliders={false}
+      gravityScale={0}
+      enabledRotations={[false, false, false]}
+      position={[0, 1.8, 0]}
+      linearDamping={1.2}
+      angularDamping={1.0}
+      ccd={true}
+    >
+      <BallCollider args={[DRONE.colliderRadius]} friction={0.1} restitution={0.0} />
+      {/* Outer visual group for Y rotation (facing direction) */}
+      <group ref={visualFacingRef}>
+        {/* Inner visual group for X/Z tilt */}
+        <group ref={visualTiltRef}>
+          <DroneModel groupRef={modelRef} />
+        </group>
       </group>
-    </group>
+    </RigidBody>
   );
 }

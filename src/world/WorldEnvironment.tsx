@@ -1,7 +1,8 @@
 // ─── WORLD — ENVIRONMENT (Terrain, ground materials, fog, global geometry) ────
 // Phase 1: Terrain & Ground — before any buildings are placed.
 
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
+import * as THREE from 'three';
 import { PALETTE } from '../lib/constants';
 
 // ─── Flagstone ground tile ────────────────────────────────────────────────────
@@ -10,6 +11,8 @@ import { PALETTE } from '../lib/constants';
 function FlagstoneGround({ cx = 0, cz = 0, w = 16, d = 16, color = PALETTE.groundBase }: {
   cx?: number; cz?: number; w?: number; d?: number; color?: string;
 }) {
+  const meshRef = useRef<THREE.InstancedMesh>(null!);
+
   const tiles = useMemo(() => {
     const items: { x: number; z: number; w: number; d: number; y: number }[] = [];
     const cols = Math.floor(w / 2);
@@ -31,18 +34,42 @@ function FlagstoneGround({ cx = 0, cz = 0, w = 16, d = 16, color = PALETTE.groun
     return items;
   }, [cx, cz, w, d]);
 
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+
+    const dummy = new THREE.Object3D();
+    const colorObj = new THREE.Color();
+
+    tiles.forEach((t, i) => {
+      // Position
+      dummy.position.set(t.x, t.y, t.z);
+      // Scale (unit box scaled to actual tile size)
+      dummy.scale.set(t.w - 0.08, 0.12, t.d - 0.08);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+
+      // Color
+      const finalColor = i % 7 === 0 ? PALETTE.groundDetail : color;
+      colorObj.set(finalColor);
+      mesh.setColorAt(i, colorObj);
+    });
+
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, [tiles, color]);
+
   return (
     <group>
-      {tiles.map((t, i) => (
-        <mesh key={i} position={[t.x, t.y, t.z]} receiveShadow>
-          <boxGeometry args={[t.w - 0.08, 0.12, t.d - 0.08]} />
-          <meshStandardMaterial
-            color={i % 7 === 0 ? PALETTE.groundDetail : color}
-            roughness={0.9 + (i % 5) * 0.02}
-            metalness={0.02}
-          />
-        </mesh>
-      ))}
+      <instancedMesh
+        ref={meshRef}
+        args={[null as any, null as any, tiles.length]}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial roughness={0.94} metalness={0.02} />
+      </instancedMesh>
       {/* Grout layer underneath */}
       <mesh position={[cx, -0.07, cz]} receiveShadow>
         <boxGeometry args={[w, 0.06, d]} />

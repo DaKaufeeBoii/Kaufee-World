@@ -1,46 +1,46 @@
 // ─── KAUFEE WORLD — GLOBAL CONSTANTS ──────────────────────────────────────────
 
-// World palette (from Art Direction document)
+// World palette (from Art Direction document — brightened for clarity)
 export const PALETTE = {
   // Ground / Concrete
-  groundBase: '#2A2A2E',
-  groundDetail: '#3A3A40',
-  groundPath: '#1C1C20',
+  groundBase: '#36373E',
+  groundDetail: '#464852',
+  groundPath: '#27282F',
 
   // Warm lights
-  lampAmber: '#F5D58A',
-  lampSecondary: '#E8C06A',
-  screenBlue: '#8FCFFF',
-  dataGreen: '#A0E8C0',
+  lampAmber: '#F7D688',
+  lampSecondary: '#ECC874',
+  screenBlue: '#9FD6FF',
+  dataGreen: '#ADEEC9',
 
   // Vegetation
-  foliageDark: '#4A7C59',
-  foliageLight: '#6B9E6A',
-  bark: '#5C4A3A',
-  groundCover: '#3D5C3A',
+  foliageDark: '#548864',
+  foliageLight: '#78AC77',
+  bark: '#6E5946',
+  groundCover: '#496B46',
 
   // Architecture
-  concrete: '#3C3C42',
-  concretLight: '#4A4A52',
-  timber: '#6B5C45',
-  metal: '#808090',
-  rust: '#8B5A3C',
+  concrete: '#484852',
+  concretLight: '#5A5A66',
+  timber: '#7B6A50',
+  metal: '#8E8E9E',
+  rust: '#996444',
 
   // District accents
-  plazaAccent: '#F5D48A',
-  aiLabAccent: '#8FCFFF',
-  projectCityAccent: '#F0A050',
-  arcadeAccent: '#E8B060',
-  archiveAccent: '#D4A060',
+  plazaAccent: '#FAD88F',
+  aiLabAccent: '#95D5FF',
+  projectCityAccent: '#F5A95A',
+  arcadeAccent: '#F0B86A',
+  archiveAccent: '#DEA868',
 
   // Sky / Fog
-  skyNight: '#0E0E18',
-  fogColor: '#1A1A24',
+  skyNight: '#151928',
+  fogColor: '#1A1E30',
 
   // UI
-  uiBg: 'rgba(16,16,16,0.88)',
-  uiText: '#E8E8E0',
-  uiBorder: '#404040',
+  uiBg: 'rgba(18,20,26,0.92)',
+  uiText: '#F0F0E8',
+  uiBorder: '#4A4A58',
 } as const;
 
 // World scale
@@ -67,8 +67,8 @@ export const WORLD = {
   interactHintRadius: 6,
 
   // Fog
-  fogNear: 30,
-  fogFar: 80,
+  fogNear: 45,
+  fogFar: 110,
 } as const;
 
 // Camera
@@ -89,13 +89,14 @@ export const CAMERA = {
 
 // Drone
 export const DRONE = {
-  speed: 8,
-  boostMultiplier: 2.2,
+  speed: 8.5,
+  boostMultiplier: 2.0,
   hoverAmplitude: 0.08,
   hoverFrequency: 2.0,
   tiltAmount: 0.14, // radians
   rollAmount: 0.09,
-  height: 0.9, // default hover height above ground
+  height: 1.05, // default hover height above ground
+  colliderRadius: 0.38,
 } as const;
 
 // Districts
