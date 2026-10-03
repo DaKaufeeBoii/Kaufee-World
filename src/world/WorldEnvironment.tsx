@@ -100,9 +100,9 @@ function PathStrip({ x1, z1, x2, z2, width = 2.5 }: {
 
 // ─── Stone Steps ──────────────────────────────────────────────────────────────
 
-function Steps({ x, z, direction, steps = 5, heightPerStep = 0.4, startY = 0 }: {
+function Steps({ x, z, direction, steps = 5, heightPerStep = 0.4, startY = 0, descending = false }: {
   x: number; z: number; direction: 'north' | 'south' | 'east' | 'west';
-  steps?: number; heightPerStep?: number; startY?: number;
+  steps?: number; heightPerStep?: number; startY?: number; descending?: boolean;
 }) {
   const stepDepth = 0.9;
   const stepWidth = 4;
@@ -110,7 +110,7 @@ function Steps({ x, z, direction, steps = 5, heightPerStep = 0.4, startY = 0 }: 
   return (
     <group>
       {Array.from({ length: steps }).map((_, i) => {
-        const dy = startY + i * heightPerStep;
+        const dy = startY + i * heightPerStep * (descending ? -1 : 1);
         let dx = 0, dz = 0;
         if (direction === 'north') dz = -i * stepDepth;
         if (direction === 'south') dz = i * stepDepth;
@@ -152,16 +152,20 @@ export function WorldEnvironment() {
 
       {/* ── AI LAB PLATFORM (elevated +2.5) ─────────────────────────────── */}
       <group position={[0, 2.5, 0]}>
-        <FlagstoneGround cx={0} cz={-22} w={20} d={20} color="#28282E" />
+        <FlagstoneGround cx={0} cz={-25} w={20} d={14} color="#28282E" />
       </group>
       {/* AI Lab retaining walls */}
-      <mesh position={[0, 1.25, -12]} receiveShadow castShadow>
-        <boxGeometry args={[22, 2.5, 0.4]} />
+      <mesh position={[-6.5, 1.25, -12]} receiveShadow castShadow>
+        <boxGeometry args={[9, 2.5, 0.4]} />
+        <meshStandardMaterial color={PALETTE.concrete} roughness={0.93} metalness={0.06} />
+      </mesh>
+      <mesh position={[6.5, 1.25, -12]} receiveShadow castShadow>
+        <boxGeometry args={[9, 2.5, 0.4]} />
         <meshStandardMaterial color={PALETTE.concrete} roughness={0.93} metalness={0.06} />
       </mesh>
       {/* Ramp up to AI Lab */}
-      <mesh position={[0, 1.25, -15]} rotation={[0.26, 0, 0]} receiveShadow>
-        <boxGeometry args={[3.5, 0.18, 6]} />
+      <mesh position={[0, 1.25, -13.5]} rotation={[0.28, 0, 0]} receiveShadow>
+        <boxGeometry args={[3.5, 0.18, 9]} />
         <meshStandardMaterial color={PALETTE.groundDetail} roughness={0.92} metalness={0.04} />
       </mesh>
 
@@ -189,7 +193,7 @@ export function WorldEnvironment() {
         <FlagstoneGround cx={0} cz={22} w={20} d={20} color="#242428" />
       </group>
       {/* Archive stone steps down */}
-      <Steps x={0} z={12} direction="south" steps={6} heightPerStep={0.35} startY={-0.35} />
+      <Steps x={0} z={12} direction="south" steps={6} heightPerStep={0.35} startY={-0.35} descending />
       {/* Archive entry arch base */}
       <mesh position={[-2, -0.5, 12.5]} castShadow receiveShadow>
         <boxGeometry args={[0.5, 3, 0.5]} />
@@ -219,12 +223,12 @@ export function WorldEnvironment() {
 
       {/* ── PERIMETER WALLS (natural boundary, not a box enclosure) ──────── */}
       {/* AI Lab compound wall */}
-      <mesh position={[-10, 3.7, -22]} castShadow receiveShadow>
-        <boxGeometry args={[0.35, 2.5, 22]} />
+      <mesh position={[-10, 3.7, -25]} castShadow receiveShadow>
+        <boxGeometry args={[0.35, 2.5, 16]} />
         <meshStandardMaterial color={PALETTE.concrete} roughness={0.95} metalness={0.04} />
       </mesh>
-      <mesh position={[10, 3.7, -22]} castShadow receiveShadow>
-        <boxGeometry args={[0.35, 2.5, 22]} />
+      <mesh position={[10, 3.7, -25]} castShadow receiveShadow>
+        <boxGeometry args={[0.35, 2.5, 16]} />
         <meshStandardMaterial color={PALETTE.concrete} roughness={0.95} metalness={0.04} />
       </mesh>
       <mesh position={[0, 3.7, -32]} castShadow receiveShadow>

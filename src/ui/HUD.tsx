@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useUIStore, useWorldStore, useDiscoveryStore } from '../state/stores';
 import { DISTRICTS } from '../lib/constants';
 import { PROJECTS, SOCIALS, EXPERIENCE } from '../data';
+import { WORLD_INTERACTIONS } from '../data/interactions';
 
 // ─── Interaction Hint ─────────────────────────────────────────────────────────
 
@@ -105,27 +106,32 @@ function ProjectPanel() {
   const unlockAchievement = useDiscoveryStore((s) => s.unlockAchievement);
   const pushToast = useUIStore((s) => s.pushToast);
   const projectsInspected = useDiscoveryStore((s) => s.projectsInspected);
+  const hasDiscovered = useDiscoveryStore((s) => s.hasDiscovered);
+  const hasAchievement = useDiscoveryStore((s) => s.hasAchievement);
 
-  if (!openPanelId || openPanelId === 'builder') return null;
   const project = PROJECTS.find((p) => p.id === openPanelId);
-  if (!project) return null;
+  const projectId = project?.id;
 
-  const handleOpen = () => {
+  useEffect(() => {
+    if (!projectId) return;
+    const key = `found_${projectId}`;
+    if (hasDiscovered(key)) return;
     incrementProjectsInspected();
-    addDiscovery(`found_${project.id}`);
-    const newCount = projectsInspected + 1;
-    if (newCount >= 3) {
+    addDiscovery(key);
+    if (projectsInspected + 1 >= 3 && !hasAchievement('system-architect')) {
       unlockAchievement('system-architect');
       pushToast({ id: 'system-architect', title: 'System Architect', description: 'Inspected three projects.', icon: '⬡' });
     }
-    if (project.id === 'kaufeehome') {
+    if (projectId === 'kaufeehome' && !hasAchievement('local-ai')) {
       unlockAchievement('local-ai');
       pushToast({ id: 'local-ai', title: 'Local AI', description: 'Discovered Kaufee-Home.', icon: '⬙' });
     }
-  };
+  }, [projectId, hasDiscovered, hasAchievement, incrementProjectsInspected, addDiscovery, unlockAchievement, pushToast, projectsInspected]);
+
+  if (!openPanelId || openPanelId === 'builder' || !project) return null;
 
   return (
-    <div className="project-panel" onMouseEnter={handleOpen}>
+    <div className="project-panel">
       <button className="close-btn" onClick={() => setOpenPanelId(null)}>✕</button>
       <div className="category">{project.category}</div>
       <h2>{project.name}</h2>
@@ -152,6 +158,26 @@ function ProjectPanel() {
             GITHUB
           </a>
         )}
+        <button className="btn" onClick={() => setOpenPanelId(null)}>CLOSE</button>
+      </div>
+    </div>
+  );
+}
+
+function WorldInfoPanel() {
+  const openPanelId = useWorldStore((s) => s.openPanelId);
+  const setOpenPanelId = useWorldStore((s) => s.setOpenPanelId);
+  const target = WORLD_INTERACTIONS.find((item) => item.id === openPanelId);
+
+  if (!target || target.id === 'builder' || PROJECTS.some((project) => project.id === target.id)) return null;
+
+  return (
+    <div className="project-panel">
+      <button className="close-btn" onClick={() => setOpenPanelId(null)}>✕</button>
+      <div className="category">WORLD EXHIBIT</div>
+      <h2>{target.label.replace(/^(Inspect|Read) /, '')}</h2>
+      <p className="desc">{target.description}</p>
+      <div className="actions">
         <button className="btn" onClick={() => setOpenPanelId(null)}>CLOSE</button>
       </div>
     </div>
@@ -283,6 +309,7 @@ function RecruiterPanel() {
 
 export function HUD() {
   const worldReady = useWorldStore((s) => s.worldReady);
+  const openPanelId = useWorldStore((s) => s.openPanelId);
   if (!worldReady) return null;
 
   return (
@@ -292,7 +319,8 @@ export function HUD() {
       <AchievementToast />
       <ControlsHint />
       <ProjectPanel />
-      <BuilderDialogue />
+      <WorldInfoPanel />
+      <BuilderDialogue key={openPanelId === 'builder' ? 'open' : 'closed'} />
       <RecruiterPanel />
       <RecruiterBtn />
       <SoundBtn />

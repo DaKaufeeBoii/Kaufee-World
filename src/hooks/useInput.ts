@@ -7,7 +7,6 @@ export interface KeyState {
   left: boolean;
   right: boolean;
   boost: boolean;
-  interact: boolean;
   map: boolean;
 }
 
@@ -17,7 +16,6 @@ const INITIAL: KeyState = {
   left: false,
   right: false,
   boost: false,
-  interact: false,
   map: false,
 };
 
@@ -33,7 +31,6 @@ export function useKeyboard() {
         case 'KeyA': case 'ArrowLeft':  keys.current.left = true;     break;
         case 'KeyD': case 'ArrowRight': keys.current.right = true;    break;
         case 'ShiftLeft': case 'ShiftRight': keys.current.boost = true; break;
-        case 'KeyE': keys.current.interact = true; break;
         case 'KeyM': keys.current.map = true;      break;
       }
     };
@@ -45,7 +42,6 @@ export function useKeyboard() {
         case 'KeyA': case 'ArrowLeft':  keys.current.left = false;     break;
         case 'KeyD': case 'ArrowRight': keys.current.right = false;    break;
         case 'ShiftLeft': case 'ShiftRight': keys.current.boost = false; break;
-        case 'KeyE': keys.current.interact = false; break;
         case 'KeyM': keys.current.map = false;      break;
       }
     };

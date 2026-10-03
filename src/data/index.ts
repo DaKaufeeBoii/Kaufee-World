@@ -109,7 +109,7 @@ export const PROJECTS: Project[] = [
       'Real-time collision handling',
     ],
     github: 'https://github.com/DaKaufeeBoii/Bump-Carts',
-    districtPosition: [-26, 0, -4],
+    districtPosition: [28, 0.5, -7],
     artifactType: 'cabinet',
     accentColor: '#FFD080',
   },

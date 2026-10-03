@@ -224,7 +224,7 @@ export function AILab() {
       <WallPanel position={[10, Y + 1.5, -27]} w={0.4} h={3} d={10} color={PALETTE.concrete} />
 
       {/* ── Gate (entry point) ─────────────────────────────────────── */}
-      <CompoundGate position={[0, Y, -12.5]} />
+      <CompoundGate position={[0, 0.85, -12.5]} open />
 
       {/* ── Overhead strip light ────────────────────────────────────── */}
       {[-4, 0, 4].map((x, i) => (

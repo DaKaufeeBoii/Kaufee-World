@@ -63,7 +63,7 @@ export const WORLD = {
   districtTriggerRadius: 10,
 
   // Interaction radii
-  interactRadius: 3.5,
+  interactRadius: 4.5,
   interactHintRadius: 6,
 
   // Fog
@@ -74,9 +74,9 @@ export const WORLD = {
 // Camera
 export const CAMERA = {
   // Exploration mode
-  followHeight: 7,
-  followDistance: 9,
-  followLag: 0.08,
+  followHeight: 3.2,
+  followDistance: 6.5,
+  followLag: 0.12,
   fov: 65,
 
   // Map mode
@@ -97,6 +97,7 @@ export const DRONE = {
   rollAmount: 0.09,
   height: 1.05, // default hover height above ground
   colliderRadius: 0.38,
+  visualScale: 0.65,
 } as const;
 
 // Districts

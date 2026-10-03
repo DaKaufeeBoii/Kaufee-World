@@ -16,11 +16,12 @@ export function WorldBounds() {
       <CuboidCollider position={[0, -0.4, 0]} args={[9.5, 0.4, 9.5]} />
 
       {/* AI Lab Elevated Platform (Y = 2.5) */}
-      <CuboidCollider position={[0, 2.1, -22]} args={[11, 0.4, 11]} />
+      <CuboidCollider position={[0, 2.1, -25]} args={[11, 0.4, 7]} />
       {/* AI Lab Access Ramp */}
-      <CuboidCollider position={[0, 1.25, -15]} rotation={[0.26, 0, 0]} args={[1.8, 0.2, 3.2]} />
+      <CuboidCollider position={[0, 1.25, -13.5]} rotation={[0.28, 0, 0]} args={[1.8, 0.2, 4.5]} />
       {/* Retaining Wall below AI Lab */}
-      <CuboidCollider position={[0, 1.25, -12]} args={[11, 1.25, 0.25]} />
+      <CuboidCollider position={[-6.5, 1.25, -12]} args={[4.5, 1.25, 0.25]} />
+      <CuboidCollider position={[6.5, 1.25, -12]} args={[4.5, 1.25, 0.25]} />
 
       {/* Project City Platform (Y = 0.5) */}
       <CuboidCollider position={[22, 0.1, 0]} args={[11, 0.4, 11]} />
@@ -86,8 +87,8 @@ export function WorldBounds() {
       <CuboidCollider position={[-10, 4.0, -27]} args={[0.3, 1.8, 5.5]} />
       <CuboidCollider position={[10, 4.0, -27]} args={[0.3, 1.8, 5.5]} />
       {/* Entry Gate Pillars */}
-      <CuboidCollider position={[-1.8, 3.7, -12.5]} args={[0.25, 1.4, 0.25]} />
-      <CuboidCollider position={[1.8, 3.7, -12.5]} args={[0.25, 1.4, 0.25]} />
+      <CuboidCollider position={[-1.8, 2.05, -12.5]} args={[0.25, 1.4, 0.25]} />
+      <CuboidCollider position={[1.8, 2.05, -12.5]} args={[0.25, 1.4, 0.25]} />
       {/* Workstation Desk */}
       <CuboidCollider position={[-6, 3.1, -18]} args={[1.2, 0.6, 0.55]} />
       {/* Server Racks */}
@@ -96,10 +97,18 @@ export function WorldBounds() {
       <CuboidCollider position={[0, 3.4, -23]} args={[3.8, 0.9, 0.6]} />
 
       {/* ── Project City ── */}
-      {/* ProjectPulse Studio Main Structure */}
-      <CuboidCollider position={[26, 2.4, -4]} args={[2.7, 1.9, 2.2]} />
-      {/* KaufeeHome Booth Structure */}
-      <CuboidCollider position={[18, 2.0, 2]} args={[1.4, 1.6, 1.3]} />
+      {/* ProjectPulse Studio walls leave the front doorway open */}
+      <CuboidCollider position={[28.5, 2.3, -4]} args={[0.18, 1.8, 2]} />
+      <CuboidCollider position={[26, 2.3, -6]} args={[2.5, 1.8, 0.18]} />
+      <CuboidCollider position={[26, 2.3, -2]} args={[2.5, 1.8, 0.18]} />
+      <CuboidCollider position={[23.5, 2.3, -5.35]} args={[0.18, 1.8, 0.65]} />
+      <CuboidCollider position={[23.5, 2.3, -2.65]} args={[0.18, 1.8, 0.65]} />
+      {/* KaufeeHome kiosk walls leave its front open */}
+      <CuboidCollider position={[19.25, 1.9, 2]} args={[0.13, 1.4, 1.1]} />
+      <CuboidCollider position={[18, 1.9, 0.9]} args={[1.25, 1.4, 0.1]} />
+      <CuboidCollider position={[18, 1.9, 3.1]} args={[1.25, 1.4, 0.1]} />
+      <CuboidCollider position={[16.75, 1.9, 1.1]} args={[0.13, 1.4, 0.2]} />
+      <CuboidCollider position={[16.75, 1.9, 2.9]} args={[0.13, 1.4, 0.2]} />
       {/* BharatVaani Booth */}
       <CuboidCollider position={[22, 2.2, 6.8]} args={[1.2, 1.8, 0.4]} />
       <CuboidCollider position={[21, 1.7, 6.0]} args={[0.3, 1.7, 0.8]} />
@@ -117,9 +126,6 @@ export function WorldBounds() {
       <CuboidCollider position={[-14, 2.0, -2]} args={[0.3, 2.1, 7.3]} />
       {/* Roof */}
       <CuboidCollider position={[-22, 4.15, -2]} args={[9.5, 0.2, 7.5]} />
-      {/* Alley entryway walls */}
-      <CuboidCollider position={[-10.5, 1.5, 0]} args={[1.1, 1.5, 0.2]} />
-      <CuboidCollider position={[-13.5, 1.5, 0]} args={[1.1, 1.5, 0.2]} />
       {/* Arcade Cabinets */}
       <CuboidCollider position={[-26, 1.0, -4]} args={[0.5, 1.0, 0.5]} />
       <CuboidCollider position={[-24, 1.0, 0]} args={[0.5, 1.0, 0.5]} />

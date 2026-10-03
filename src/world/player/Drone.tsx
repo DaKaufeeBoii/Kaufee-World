@@ -152,7 +152,7 @@ export function DroneController() {
   const visualFacingRef = useRef<THREE.Group>(null!);
   const visualTiltRef = useRef<THREE.Group>(null!);
   const modelRef = useRef<THREE.Group>(null!);
-  const { camera } = useThree();
+  const { camera, gl } = useThree();
   const setDronePosition = useWorldStore((s) => s.setDronePosition);
   const cameraMode = useWorldStore((s) => s.cameraMode);
   const activeDistrict = useWorldStore((s) => s.activeDistrict);
@@ -168,20 +168,22 @@ export function DroneController() {
       if (cameraMode !== 'explore') return;
       cameraAngleRef.current -= e.movementX * 0.003;
     };
-    const onPointerLock = () => {
-      document.addEventListener('mousemove', onMouseMove);
+    const onPointerLockChange = () => {
+      if (document.pointerLockElement === gl.domElement) {
+        document.addEventListener('mousemove', onMouseMove);
+      } else {
+        document.removeEventListener('mousemove', onMouseMove);
+      }
     };
-    const onPointerUnlock = () => {
+    const onCanvasClick = () => gl.domElement.requestPointerLock();
+    document.addEventListener('pointerlockchange', onPointerLockChange);
+    gl.domElement.addEventListener('click', onCanvasClick);
+    return () => {
       document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('pointerlockchange', onPointerLockChange);
+      gl.domElement.removeEventListener('click', onCanvasClick);
     };
-    document.addEventListener('pointerlockchange', () => {
-      if (document.pointerLockElement) onPointerLock();
-      else onPointerUnlock();
-    });
-    const canvas = document.querySelector('canvas');
-    canvas?.addEventListener('click', () => canvas.requestPointerLock());
-    return () => document.removeEventListener('mousemove', onMouseMove);
-  }, [cameraMode]);
+  }, [cameraMode, gl]);
 
   useFrame(() => {
     const rb = rigidBodyRef.current;
@@ -273,7 +275,7 @@ export function DroneController() {
     >
       <BallCollider args={[DRONE.colliderRadius]} friction={0.1} restitution={0.0} />
       {/* Outer visual group for Y rotation (facing direction) */}
-      <group ref={visualFacingRef}>
+      <group ref={visualFacingRef} scale={DRONE.visualScale}>
         {/* Inner visual group for X/Z tilt */}
         <group ref={visualTiltRef}>
           <DroneModel groupRef={modelRef} />

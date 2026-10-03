@@ -1,7 +1,7 @@
 // ─── CHARACTER — BUILDER NPC ──────────────────────────────────────────────────
 // Small voxel-style figure. Not realistic. Idle bob + ping animation on approach.
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useWorldStore, useDiscoveryStore, useUIStore } from '../../state/stores';
@@ -37,14 +37,26 @@ function PingRing({ radius, color }: { radius: number; color: string }) {
 export function BuilderNPC({ position }: { position: [number, number, number] }) {
   const groupRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Group>(null!);
-  const dronePos = useWorldStore((s) => s.dronePosition);
   const builderMet = useWorldStore((s) => s.builderMet);
+  const openPanelId = useWorldStore((s) => s.openPanelId);
   const setBuilderMet = useWorldStore((s) => s.setBuilderMet);
   const setOpenPanelId = useWorldStore((s) => s.setOpenPanelId);
   const addDiscovery = useDiscoveryStore((s) => s.addDiscovery);
   const unlockAchievement = useDiscoveryStore((s) => s.unlockAchievement);
   const pushToast = useUIStore((s) => s.pushToast);
-  const setInteractionHint = useUIStore((s) => s.setInteractionHint);
+
+  useEffect(() => {
+    if (openPanelId !== 'builder' || builderMet) return;
+    setBuilderMet();
+    addDiscovery('met_builder');
+    unlockAchievement('first-contact');
+    pushToast({
+      id: 'first-contact',
+      title: 'First Contact',
+      description: 'Met the Builder.',
+      icon: '◈',
+    });
+  }, [openPanelId, builderMet, setBuilderMet, addDiscovery, unlockAchievement, pushToast]);
 
   useFrame(({ clock }) => {
     if (!groupRef.current || !bodyRef.current) return;
@@ -53,19 +65,7 @@ export function BuilderNPC({ position }: { position: [number, number, number] })
     // Idle bob
     bodyRef.current.position.y = Math.sin(t * 1.4) * 0.06;
 
-    // Notice drone proximity
-    const dx = dronePos[0] - position[0];
-    const dz = dronePos[2] - position[2];
-    const dist = Math.sqrt(dx * dx + dz * dz);
-
-    if (dist < 8) {
-      // Face drone
-      groupRef.current.rotation.y = Math.atan2(dx, dz);
-
-      if (dist < 3.5) {
-        setInteractionHint({ label: 'TALK', type: 'TALK' });
-      }
-    }
+    groupRef.current.rotation.y = 0;
   });
 
   const handleInteract = () => {

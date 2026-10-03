@@ -19,12 +19,6 @@ export function Arcade() {
       {/* Roof */}
       <WallPanel position={[-22, Y + 4.05, -2]} w={18.5} h={0.12} d={14.5} color="#1C1C1E" />
 
-      {/* Entrance alley walls (narrow passage from plaza) */}
-      <WallPanel position={[-10.5, Y + 1.5, 0]} w={2} h={3} d={0.3} color="#2A2A2E" />
-      <WallPanel position={[-13.5, Y + 1.5, 0]} w={2} h={3} d={0.3} color="#2A2A2E" />
-      <WallPanel position={[-10.5, Y + 1.5, -1]} w={0.3} h={3} d={2} color="#2A2A2E" />
-      <WallPanel position={[-13.5, Y + 1.5, -1]} w={0.3} h={3} d={2} color="#2A2A2E" />
-
       {/* ── Bare overhead bulb ──────────────────────────────────────── */}
       {/* Physical bulb geometry at -22, 3.6, -2 */}
       <mesh position={[-22, 3.65, -2]}>

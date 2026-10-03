@@ -8,6 +8,7 @@ import { Physics } from '@react-three/rapier';
 import * as THREE from 'three';
 import { useWorldStore } from '../state/stores';
 import { PALETTE, WORLD, DISTRICTS } from '../lib/constants';
+import { WorldInteractions } from './WorldInteractions';
 import { WorldEnvironment } from './WorldEnvironment';
 import { WorldLighting } from './WorldLighting';
 import { WorldBounds } from './WorldBounds';
@@ -73,6 +74,7 @@ function WorldScene() {
 
         {/* Characters */}
         <BuilderNPC position={[-1.5, 0, -3.5]} />
+      <WorldInteractions />
 
         {/* Player Drone with physics */}
         <DroneController />

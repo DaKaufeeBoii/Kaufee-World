@@ -50,21 +50,23 @@ function ProjectPulseStudio({ position }: { position: [number, number, number] }
   const [bx, by, bz] = position;
   return (
     <group>
-      {/* Main building body */}
-      <WallPanel position={[bx, by + 1.8, bz]} w={5} h={3.6} d={4} color={PALETTE.concrete} />
-      {/* Front face — slightly lighter (facing player) */}
-      <WallPanel position={[bx - 2.5, by + 1.8, bz]} w={0.35} h={3.6} d={4} color={PALETTE.concretLight} />
+      {/* Open-front studio shell, with a clear doorway facing the lane */}
+      <WallPanel position={[bx + 2.5, by + 1.8, bz]} w={0.35} h={3.6} d={4} color={PALETTE.concrete} />
+      <WallPanel position={[bx, by + 1.8, bz - 2]} w={5} h={3.6} d={0.35} color={PALETTE.concrete} />
+      <WallPanel position={[bx, by + 1.8, bz + 2]} w={5} h={3.6} d={0.35} color={PALETTE.concrete} />
+      <WallPanel position={[bx - 2.5, by + 1.8, bz - 1.35]} w={0.35} h={3.6} d={1.3} color={PALETTE.concretLight} />
+      <WallPanel position={[bx - 2.5, by + 1.8, bz + 1.35]} w={0.35} h={3.6} d={1.3} color={PALETTE.concretLight} />
       {/* Roof — slight overhang */}
       <WallPanel position={[bx, by + 3.65, bz]} w={5.3} h={0.15} d={4.3} color="#2A2A2E" />
 
       {/* Window — large collaborative workspace visible from street */}
-      <Window position={[bx - 2.52, by + 2.0, bz - 0.8]} w={1.6} h={1.4}
+      <Window position={[bx - 2.52, by + 2.0, bz - 1.35]} w={1.0} h={1.4}
         emissive={PALETTE.projectCityAccent} rotation={[0, Math.PI / 2, 0]} />
-      <Window position={[bx - 2.52, by + 2.0, bz + 0.8]} w={1.6} h={1.4}
+      <Window position={[bx - 2.52, by + 2.0, bz + 1.35]} w={1.0} h={1.4}
         emissive={PALETTE.projectCityAccent} rotation={[0, Math.PI / 2, 0]} />
 
       {/* Door */}
-      <Door position={[bx - 2.52, by + 1.2, bz]} rotation={[0, Math.PI / 2, 0]} />
+      <Door position={[bx - 2.52, by + 1.2, bz]} open rotation={[0, Math.PI / 2, 0]} />
 
       {/* Sign on front wall */}
       <mesh position={[bx - 2.54, by + 3.1, bz]} rotation={[0, Math.PI / 2, 0]} castShadow>
@@ -121,10 +123,12 @@ function KaufeeHomeStation({ position }: { position: [number, number, number] })
   const [bx, by, bz] = position;
   return (
     <group>
-      {/* Kiosk frame */}
-      <WallPanel position={[bx, by + 1.4, bz]} w={2.5} h={2.8} d={2.2} color="#202026" />
-      {/* Front open face — interior visible */}
-      <WallPanel position={[bx - 1.25, by + 1.6, bz]} w={0.25} h={2.2} d={2.2} color={PALETTE.concrete} />
+      {/* Kiosk walls keep the front open for entry */}
+      <WallPanel position={[bx + 1.25, by + 1.4, bz]} w={0.25} h={2.8} d={2.2} color="#202026" />
+      <WallPanel position={[bx, by + 1.4, bz - 1.1]} w={2.5} h={2.8} d={0.2} color="#202026" />
+      <WallPanel position={[bx, by + 1.4, bz + 1.1]} w={2.5} h={2.8} d={0.2} color="#202026" />
+      <WallPanel position={[bx - 1.25, by + 1.4, bz - 0.9]} w={0.25} h={2.8} d={0.4} color={PALETTE.concrete} />
+      <WallPanel position={[bx - 1.25, by + 1.4, bz + 0.9]} w={0.25} h={2.8} d={0.4} color={PALETTE.concrete} />
       {/* Roof — pronounced overhang */}
       <WallPanel position={[bx, by + 2.85, bz]} w={2.8} h={0.12} d={2.5} color="#282830" />
 
